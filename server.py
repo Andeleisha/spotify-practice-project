@@ -83,7 +83,34 @@ def callback():
 
     # Combine profile and playlist data to display
     display_arr = [profile_data] + playlist_data["items"]
-    return render_template("index.html", sorted_array=display_arr)
+
+    #Test
+    search_api_endpoint = "{}/search".format(SPOTIFY_API_URL)
+    search_args = "?q=romantic&type=playlist"
+    romantic_playlists_request = requests.get(search_api_endpoint + search_args, headers=authorization_header)
+    romantic_playlists = json.loads(romantic_playlists_request.text)
+
+    return render_template("index.html", sorted_array=display_arr, romantic_playlists=romantic_playlists)
+
+@app.route("/books")
+def book_search():
+    """Play with GoodReads API and search results"""
+    
+    #UnrelatedGoodReadsStuff
+    gr_search_endpoint = "https://www.goodreads.com/search.json"
+    gr_search_key = os.environ["GOODREADS_DEV_KEY"]
+    gr_search_args = "&q=Ender%27s+Game"
+    gr_search_request = requests.get(gr_search_endpoint + gr_search_key + gr_search_args)
+    gr_search_result = gr_search_request.text 
+
+    gr_reviews_for_book_endpoint = "https://www.goodreads.com/book/show/"
+    book_id = "50"
+    format_arg = ".json?"
+    reviews_request = requests.get(gr_reviews_for_book_endpoint + book_id + format_arg + "key=" + gr_search_key)
+    reviews_result = reviews_request.text
+
+    return render_template("book_tests.html", books=reviews_result)
+
 
 
 if __name__ == "__main__":
